@@ -1,0 +1,16 @@
+{
+    "name": "persenaut",
+    "private": true,
+    "version": "1.0.0",
+    "workspaces": [
+        "apps/web",
+        "apps/api",
+        "infra",
+        "models",
+        "docs"
+    ],
+    "scripts": {
+        "build": "echo 'Define build scripts por workspace'",
+        "test": "echo 'Define test scripts por workspace'"
+    }
+}
