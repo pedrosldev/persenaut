@@ -37,7 +37,7 @@ El proyecto está en fase inicial de desarrollo. Próximamente se implementará 
 
 ## Contacto
 
-Para más información o colaboración, contacta a [tu correo o perfil].
+Para más información o colaboración, contacta a pedrosldev@outlook.es
 
 ---
 
