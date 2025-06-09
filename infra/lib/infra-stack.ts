@@ -44,11 +44,15 @@ export class InfraStack extends cdk.Stack {
     
     this.ollamaInstance = new ec2.Instance(this, 'OllamaInstance', {
       vpc: this.vpc,
-      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MEDIUM),
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.XLARGE),
       machineImage: ec2.MachineImage.latestAmazonLinux2(),
       securityGroup: ollamaSG,
       keyPair: ec2.KeyPair.fromKeyPairName(this, 'OllamaInstanceKeyPair', 'vockey'),
       vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+      blockDevices: [{
+        deviceName: '/dev/xvda',
+        volume: ec2.BlockDeviceVolume.ebs(30),
+      }],
     });
     this.ollamaInstance.userData.addCommands(
       'sudo yum update -y',
