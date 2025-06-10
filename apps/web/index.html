@@ -264,7 +264,7 @@
 
     <script>
         // Configuración
-        const API_ENDPOINT = 'https://tu-api-gateway-url.amazonaws.com/prod/generate-pregunta';
+        const API_ENDPOINT = 'https://cr0xwaff65.execute-api.eu-south-2.amazonaws.com/prod/challenges';
 
         // Referencias DOM
         const form = document.getElementById('retoForm');
@@ -314,8 +314,8 @@
                     tematica: formData.get('tematica'),
                     nivel: formData.get('nivel'),
                     frecuencia: formData.get('frecuencia'),
-                    metodo_entrega: formData.get('metodo_entrega'),
-                    user_id: localStorage.getItem('user_id') || generateUserId()
+                    // metodo_entrega: formData.get('metodo_entrega'),
+                    // user_id: localStorage.getItem('user_id') || generateUserId()
                 };
 
                 // Añadir datos adicionales según método de entrega
