@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PERSENAUT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 1.1em;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .result {
+            display: none;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .reto-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            border-left-color: #c33;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radio-item input[type="radio"] {
+            width: auto;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📝 PERSENAUT</h1>
+
+        <form id="retoForm">
+            <div class="form-group">
+                <label for="tematica">Temática de la Pregunta:</label>
+                <input type="text" id="tematica" name="tematica" placeholder="ej: JavaScript, matemáticas, historia..."
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label for="nivel">Nivel de Dificultad:</label>
+                <select id="nivel" name="nivel" required>
+                    <option value="">Selecciona un nivel</option>
+                    <option value="principiante">🟢 Principiante</option>
+                    <option value="intermedio">🟡 Intermedio</option>
+                    <option value="avanzado">🔴 Avanzado</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="frecuencia">Frecuencia:</label>
+                <select id="frecuencia" name="frecuencia" required>
+                    <option value="">¿Con qué frecuencia?</option>
+                    <option value="diario">📅 Diario</option>
+                    <option value="semanal">📆 Semanal</option>
+                    <option value="mensual">🗓️ Mensual</option>
+                    <option value="una_vez">⚡ Solo una vez</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Método de Entrega:</label>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" id="front" name="metodo_entrega" value="front" checked>
+                        <label for="front">💻 En pantalla</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="email" name="metodo_entrega" value="email">
+                        <label for="email">📧 Email</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="telegram" name="metodo_entrega" value="telegram">
+                        <label for="telegram">💬 Telegram</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="sms" name="metodo_entrega" value="sms">
+                        <label for="sms">📱 SMS</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campos adicionales según método de entrega -->
+            <div class="form-group" id="emailField" style="display: none;">
+                <label for="email_address">Email:</label>
+                <input type="email" id="email_address" name="email_address" placeholder="tu@email.com">
+            </div>
+
+            <div class="form-group" id="telegramField" style="display: none;">
+                <label for="telegram_id">ID de Telegram:</label>
+                <input type="text" id="telegram_id" name="telegram_id" placeholder="@usuario o ID numérico">
+            </div>
+
+            <div class="form-group" id="smsField" style="display: none;">
+                <label for="phone_number">Número de teléfono:</label>
+                <input type="tel" id="phone_number" name="phone_number" placeholder="+34 600 000 000">
+            </div>
+
+            <button type="submit" class="btn" id="generateBtn">
+                🚀 Generar Pregunta
+            </button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Generando tu pregunta personalizada...</p>
+        </div>
+
+        <div class="result" id="result">
+            <h3>¡Tu pregunta está lista! 📝</h3>
+            <div class="reto-content" id="retoContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración
+        const API_ENDPOINT = 'https://tu-api-gateway-url.amazonaws.com/prod/generate-pregunta';
+
+        // Referencias DOM
+        const form = document.getElementById('retoForm');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+        const retoContent = document.getElementById('retoContent');
+        const generateBtn = document.getElementById('generateBtn');
+
+        // Campos condicionales
+        const radioButtons = document.querySelectorAll('input[name="metodo_entrega"]');
+        const emailField = document.getElementById('emailField');
+        const telegramField = document.getElementById('telegramField');
+        const smsField = document.getElementById('smsField');
+
+        // Mostrar/ocultar campos según método de entrega
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', function () {
+                // Ocultar todos los campos
+                emailField.style.display = 'none';
+                telegramField.style.display = 'none';
+                smsField.style.display = 'none';
+
+                // Mostrar el campo correspondiente
+                if (this.value === 'email') {
+                    emailField.style.display = 'block';
+                } else if (this.value === 'telegram') {
+                    telegramField.style.display = 'block';
+                } else if (this.value === 'sms') {
+                    smsField.style.display = 'block';
+                }
+            });
+        });
+
+        // Manejar envío del formulario
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            // Mostrar loading
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            generateBtn.disabled = true;
+
+            try {
+                // Recopilar datos del formulario
+                const formData = new FormData(form);
+                const data = {
+                    tematica: formData.get('tematica'),
+                    nivel: formData.get('nivel'),
+                    frecuencia: formData.get('frecuencia'),
+                    metodo_entrega: formData.get('metodo_entrega'),
+                    user_id: localStorage.getItem('user_id') || generateUserId()
+                };
+
+                // Añadir datos adicionales según método de entrega
+                if (data.metodo_entrega === 'email') {
+                    data.email_address = formData.get('email_address');
+                } else if (data.metodo_entrega === 'telegram') {
+                    data.telegram_id = formData.get('telegram_id');
+                } else if (data.metodo_entrega === 'sms') {
+                    data.phone_number = formData.get('phone_number');
+                }
+
+                console.log('Enviando datos:', data);
+
+                // Hacer petición a la API
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const responseData = await response.json();
+
+                if (response.ok && responseData.success) {
+                    // Mostrar resultado
+                    showResult(responseData);
+
+                    // Guardar user_id para futuras peticiones
+                    if (!localStorage.getItem('user_id')) {
+                        localStorage.setItem('user_id', data.user_id);
+                    }
+                } else {
+                    throw new Error(responseData.error || 'Error desconocido');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message);
+            } finally {
+                loading.style.display = 'none';
+                generateBtn.disabled = false;
+            }
+        });
+
+        function showResult(data) {
+            result.className = 'result';
+            result.style.display = 'block';
+
+            // Mostrar directamente el response de Ollama
+            const content = data.response || 'No se pudo obtener la pregunta';
+            retoContent.textContent = content;
+        }
+
+        function showError(message) {
+            result.className = 'result error';
+            result.style.display = 'block';
+            retoContent.textContent = `❌ Error: ${message}`;
+        }
+
+        function generateUserId() {
+            return 'user_' + Math.random().toString(36).substr(2, 9);
+        }
+    </script>
+</body>
+
+</html>
