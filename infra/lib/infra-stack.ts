@@ -2,8 +2,8 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as s3 from 'aws-cdk-lib/aws-s3';
-import * as lambda from 'aws-cdk-lib/aws-lambda';
-import * as apigw from 'aws-cdk-lib/aws-apigateway';
+// import * as lambda from 'aws-cdk-lib/aws-lambda';
+// import * as apigw from 'aws-cdk-lib/aws-apigateway';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 
 export class InfraStack extends cdk.Stack {
@@ -11,7 +11,7 @@ export class InfraStack extends cdk.Stack {
   public readonly vpc: ec2.Vpc;
   public readonly bucket: s3.Bucket;
   public readonly table: dynamodb.Table;
-  public readonly lambdaFn: lambda.Function;
+  // public readonly lambdaFn: lambda.Function;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -82,38 +82,38 @@ export class InfraStack extends cdk.Stack {
     });
 
     
-    this.lambdaFn = new lambda.Function(this, 'InfraLambda', {
-      runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset('lambda'), 
-      vpc: this.vpc,
-      vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
-      securityGroups: [ollamaSG],
-      environment: {
-        EC2_INSTANCE_ID: this.ollamaInstance.instanceId,
-        DDB_TABLE_NAME: this.table.tableName,
-      },
-      timeout: cdk.Duration.seconds(30),
-    });
+    // this.lambdaFn = new lambda.Function(this, 'InfraLambda', {
+    //   runtime: lambda.Runtime.NODEJS_20_X,
+    //   handler: 'index.handler',
+    //   code: lambda.Code.fromAsset('lambda'), 
+    //   vpc: this.vpc,
+    //   vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+    //   securityGroups: [ollamaSG],
+    //   environment: {
+    //     EC2_INSTANCE_ID: this.ollamaInstance.instanceId,
+    //     DDB_TABLE_NAME: this.table.tableName,
+    //   },
+    //   timeout: cdk.Duration.seconds(30),
+    // });
 
     
-    const api = new apigw.LambdaRestApi(this, 'InfraApi', {
-      handler: this.lambdaFn,
-      proxy: false,
-      restApiName: 'InfraApi',
-    });
-    const challenges = api.root.addResource('challenges');
-    challenges.addMethod('POST');
+    // const api = new apigw.LambdaRestApi(this, 'InfraApi', {
+    //   handler: this.lambdaFn,
+    //   proxy: false,
+    //   restApiName: 'InfraApi',
+    // });
+    // const challenges = api.root.addResource('challenges');
+    // challenges.addMethod('POST');
 
     
     new cdk.CfnOutput(this, 'BucketWebsiteURL', {
       value: this.bucket.bucketWebsiteUrl,
       description: 'Bucket URL for frontend',
     });
-    new cdk.CfnOutput(this, 'ApiUrl', {
-      value: api.url,
-      description: 'Base URL for API Gateway',
-    });
+    // new cdk.CfnOutput(this, 'ApiUrl', {
+    //   value: api.url,
+    //   description: 'Base URL for API Gateway',
+    // });
     new cdk.CfnOutput(this, 'OllamaInstanceId', {
       value: this.ollamaInstance.instanceId,
       description: 'ID of the EC2 Ollama instance',

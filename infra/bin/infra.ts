@@ -1,20 +1,36 @@
-#!/usr/bin/env node
+// lib/lambda-stack.ts
 import * as cdk from 'aws-cdk-lib';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { InfraStack } from '../lib/infra-stack';
+import { LambdaStack } from '../lib/lambda-stack';
 
+
+const vpcId = process.env.VPC_ID;
+const tableName = process.env.DDB_TABLE_NAME;
+const securityGroupId = process.env.SECURITY_GROUP_ID;
+const ec2InstanceId = process.env.EC2_INSTANCE_ID;
+
+if (!vpcId || !tableName || !securityGroupId || !ec2InstanceId) {
+  throw new Error('Faltan variables de entorno: VPC_ID, DDB_TABLE_NAME, SECURITY_GROUP_ID, EC2_INSTANCE_ID');
+}
 const app = new cdk.App();
-new InfraStack(app, 'InfraStack', {
-  /* If you don't specify 'env', this stack will be environment-agnostic.
-   * Account/Region-dependent features and context lookups will not work,
-   * but a single synthesized template can be deployed anywhere. */
 
-  /* Uncomment the next line to specialize this stack for the AWS Account
-   * and Region that are implied by the current CLI configuration. */
-  // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
-
-  /* Uncomment the next line if you know exactly what Account and Region you
-   * want to deploy the stack to. */
+const lambdaResourcesStack = new cdk.Stack(app, 'LambdaResourcesStack', {
   env: { account: '536697257321', region: 'eu-south-2' },
+});
+const vpc = ec2.Vpc.fromLookup(lambdaResourcesStack, 'VPC', { vpcId });
+const table = dynamodb.Table.fromTableName(lambdaResourcesStack, 'Table', tableName);
+const securityGroup = ec2.SecurityGroup.fromSecurityGroupId(lambdaResourcesStack, 'SecurityGroup', securityGroupId);
 
-  /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+new InfraStack(app, 'InfraStack', {
+  env: { account: '536697257321', region: 'eu-south-2' },
+});
+
+new LambdaStack(app, 'LambdaStack', {
+  vpc,
+  table,
+  securityGroup,
+  instanceId: ec2InstanceId,
+  env: { account: '536697257321', region: 'eu-south-2' },
 });
