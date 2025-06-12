@@ -17,6 +17,8 @@
         "esbuild": "^0.25.5"
     },
     "dependencies": {
-        "@aws-cdk/aws-lambda-nodejs": "^1.203.0"
+        "@aws-cdk/aws-lambda-nodejs": "^1.203.0",
+        "aws-cdk-lib": "^2.200.1",
+        "constructs": "^10.4.2"
     }
 }
