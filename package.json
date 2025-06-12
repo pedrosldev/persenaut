@@ -12,5 +12,11 @@
     "scripts": {
         "build": "echo 'Define build scripts por workspace'",
         "test": "echo 'Define test scripts por workspace'"
+    },
+    "devDependencies": {
+        "esbuild": "^0.25.5"
+    },
+    "dependencies": {
+        "@aws-cdk/aws-lambda-nodejs": "^1.203.0"
     }
 }
