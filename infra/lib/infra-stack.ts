@@ -52,13 +52,27 @@ export class InfraStack extends cdk.Stack {
       autoDeleteObjects: true,
     });
 
-    this.table = new dynamodb.Table(this, 'ChallengesTable', {
-      tableName: 'Challenges',
-      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+    this.bucket.addCorsRule({
+      allowedMethods: [s3.HttpMethods.GET, s3.HttpMethods.POST, s3.HttpMethods.HEAD],
+      allowedOrigins: ['*'],
+      allowedHeaders: ['*'],
+      exposedHeaders: ['ETag']
     });
 
-    
+    this.table = new dynamodb.Table(this, 'ChallengesTable', {
+      tableName: 'Challenges',
+      partitionKey: { name: 'pk', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'sk', type: dynamodb.AttributeType.STRING }, 
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      timeToLiveAttribute: 'expiryTime'
+    });
+
+    this.table.addGlobalSecondaryIndex({
+      indexName: 'ThemeLevelIndex',
+      partitionKey: { name: 'themeAttr', type: dynamodb.AttributeType.STRING }, 
+      sortKey: { name: 'levelAttr', type: dynamodb.AttributeType.STRING }, 
+    });
+
     const apiKeySecret = secretsmanager.Secret.fromSecretAttributes(this, 'ImportedOpenRouterSecret', {
       secretCompleteArn: 'arn:aws:secretsmanager:eu-south-2:536697257321:secret:OpenRouterApiKey-2tcs4q'
     });
@@ -74,7 +88,11 @@ export class InfraStack extends cdk.Stack {
         TABLE_NAME: this.table.tableName,
         OPENROUTER_SECRET_ARN: apiKeySecret.secretArn,
         HTTP_REFERER: 'https://tu-sitio-web.com',
-        APP_TITLE: 'Challenge Generator'
+        APP_TITLE: 'Challenge Generator',
+        PRIMARY_KEY: 'pk',
+        SORT_KEY: 'sk',
+        THEME_ATTR: 'themeAttr',  
+        LEVEL_ATTR: 'levelAttr'   
       },
       vpc: this.vpc,
       vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
@@ -96,16 +114,51 @@ export class InfraStack extends cdk.Stack {
     this.table.grantReadWriteData(this.challengeLambda);
     apiKeySecret.grantRead(this.challengeLambda);
 
+    // this.api = new apigateway.RestApi(this, 'ChallengeApi', {
+    //   restApiName: 'Challenge Generator API',
+    //   defaultCorsPreflightOptions: {
+    //     allowOrigins: apigateway.Cors.ALL_ORIGINS,
+    //     allowMethods: apigateway.Cors.ALL_METHODS,
+    //   },
+    // });
     this.api = new apigateway.RestApi(this, 'ChallengeApi', {
       restApiName: 'Challenge Generator API',
       defaultCorsPreflightOptions: {
         allowOrigins: apigateway.Cors.ALL_ORIGINS,
-        allowMethods: apigateway.Cors.ALL_METHODS,
-      },
+        allowMethods: ['POST', 'OPTIONS'],
+        allowHeaders: ['Content-Type'],
+        statusCode: 200
+      }
     });
 
-    const challenges = this.api.root.addResource('challenges');
-    challenges.addMethod('POST', new apigateway.LambdaIntegration(this.challengeLambda));
+    const challenges = this.api.root.addResource('challenges', {
+      defaultCorsPreflightOptions: {
+        allowOrigins: apigateway.Cors.ALL_ORIGINS,
+        allowMethods: ['POST', 'OPTIONS'],
+        allowHeaders: ['Content-Type']
+      }
+    });
+    
+
+    challenges.addMethod('POST', new apigateway.LambdaIntegration(this.challengeLambda, {
+      integrationResponses: [{
+        statusCode: '200',
+        responseParameters: {
+          'method.response.header.Access-Control-Allow-Origin': "'*'"
+        }
+      }],
+      passthroughBehavior: apigateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
+      requestTemplates: {
+        'application/json': '{"statusCode": 200}'
+      }
+    }), {
+      methodResponses: [{
+        statusCode: '200',
+        responseParameters: {
+          'method.response.header.Access-Control-Allow-Origin': true
+        }
+      }]
+    });
 
     this.vpc.addInterfaceEndpoint('SecretsManagerEndpoint', {
       service: ec2.InterfaceVpcEndpointAwsService.SECRETS_MANAGER
