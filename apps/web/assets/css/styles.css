@@ -16,6 +16,15 @@ body {
 
 /* index */
 
+.cta-container .btn {
+    display: block;
+    margin: 15px auto;
+    padding: 12px;
+    min-width: 80%;
+}
+
+/* demo */
+
 .container {
     background: white;
     border-radius: 20px;
