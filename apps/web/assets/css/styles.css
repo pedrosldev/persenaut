@@ -25,6 +25,17 @@ body {
 
 /* demo */
 
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px;
+}
+
+ul li {
+    margin: 10px 0 10px 0;
+    
+  
+}
 .container {
     background: white;
     border-radius: 20px;
